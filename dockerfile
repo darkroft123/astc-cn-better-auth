@@ -1,28 +1,53 @@
-﻿FROM --platform=linux/arm64 node:20-alpine AS builder
+# ==========================================
+# Stage 1: Build the Vite React Frontend UI
+# ==========================================
+FROM node:20-alpine AS client-builder
+
+WORKDIR /app/client
+
+COPY client/package*.json ./
+RUN npm ci --legacy-peer-deps --no-audit --no-fund || npm install --legacy-peer-deps --no-audit --no-fund
+
+COPY client/ ./
+RUN npm run build
+
+# ==========================================
+# Stage 2: Build the Express Backend Server
+# ==========================================
+FROM node:20-alpine AS server-builder
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN --mount=type=cache,target=/root/.npm \
-    npm config set maxsockets 5 && \
-    npm config set fetch-retries 5 && \
-    npm config set fetch-retry-factor 20 && \
-    npm config set fetch-retry-mintimeout 20000 && \
-    npm config set fetch-retry-maxtimeout 120000 && \
-    npm config set fetch-timeout 300000 && \
-    (npm ci --legacy-peer-deps --no-audit --no-fund || npm install --legacy-peer-deps --no-audit --no-fund)
+RUN npm ci --legacy-peer-deps --no-audit --no-fund || npm install --legacy-peer-deps --no-audit --no-fund
 
-COPY . .
-RUN npx prisma generate && npm run build
+COPY prisma ./prisma
+RUN npx prisma generate
 
+COPY src ./src
+COPY tsconfig.json ./
+RUN npm run build
+
+# ==========================================
+# Stage 3: Production Runner
+# ==========================================
 FROM node:20-alpine
+
 WORKDIR /app
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/private.pem ./private.pem
-COPY --from=builder /app/public.pem ./public.pem
+
+COPY package*.json ./
+RUN npm ci --omit=dev --legacy-peer-deps --no-audit --no-fund || npm install --omit=dev --legacy-peer-deps --no-audit --no-fund
+
+COPY prisma ./prisma
+RUN npx prisma generate
+
+COPY --from=server-builder /app/dist ./dist
+COPY --from=client-builder /app/client/dist ./public
+COPY private.pem ./private.pem
+COPY public.pem ./public.pem
+
 ENV NODE_ENV=production
+ENV PORT=3010
 EXPOSE 3010
 
 CMD ["node", "dist/index.js"]

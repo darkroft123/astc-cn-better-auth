@@ -7,9 +7,14 @@ import express from "express";
 import cors from "cors";
 import bcrypt from "bcryptjs";
 import fs from "fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { db } from "./db.js";
 import { authMiddleware } from "./middleware/authMiddleware.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -22,12 +27,13 @@ app.use(cors({
 
 app.use(express.json());
 
-const privateKey = fs.readFileSync("private.pem");
+const privateKeyPath = fs.existsSync("private.pem") ? "private.pem" : path.join(__dirname, "../private.pem");
+const privateKey = fs.readFileSync(privateKeyPath);
 
 /* =========================
-   LOGIN
+   LOGIN (Directo o bajo /api/auth)
 ========================= */
-app.post("/login", async (req, res) => {
+app.post(["/login", "/api/auth/login"], async (req, res) => {
     const tStart = Date.now();
     try {
 
@@ -116,11 +122,39 @@ let avatarUrl = user.avatar_url || "";
 /* =========================
    ME (PROTEGIDO)
 ========================= */
-app.get("/me", authMiddleware, (req, res) => {
+app.get(["/me", "/api/auth/me"], authMiddleware, (req, res) => {
     return res.json({
         user: (req as any).user
     });
 });
+
+/* =========================
+   UI VISUAL (Frontend Auth Integrado)
+========================= */
+const candidates = [
+    path.join(__dirname, "../public"),
+    path.join(__dirname, "../../client/dist"),
+    path.join(__dirname, "../client/dist"),
+    path.join(process.cwd(), "client/dist"),
+    path.join(process.cwd(), "public")
+];
+
+const clientBuildPath = candidates.find(p => fs.existsSync(path.join(p, "index.html")));
+
+if (clientBuildPath) {
+    console.log(`🎨 [AUTH UI] Servidor de UI Visual activo desde: ${clientBuildPath}`);
+    app.use(express.static(clientBuildPath));
+
+    // Fallback SPA para rutas del frontend
+    app.get("*", (req, res, next) => {
+        if (req.path.startsWith("/api") || req.path === "/login" || req.path === "/me") {
+            return next();
+        }
+        res.sendFile(path.join(clientBuildPath, "index.html"));
+    });
+} else {
+    console.log("ℹ️ [AUTH UI] Modo API pura (no se detectó build estático en client/dist o public).");
+}
 
 // Warm up the database connection pool on startup to eliminate cold starts
 db.$connect()
@@ -132,6 +166,7 @@ const PORT = process.env.PORT || 3010;
 app.listen(PORT, () => {
     console.log(`Better Auth running on ${PORT}`);
 });
+
 
 
 

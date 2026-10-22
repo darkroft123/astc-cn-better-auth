@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx src/index.ts",
+    "build:client": "cd client && npm run build",
+    "build:server": "tsc",
     "build": "tsc",
     "start": "node dist/index.js"
   },
