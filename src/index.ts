@@ -146,7 +146,7 @@ if (clientBuildPath) {
     app.use(express.static(clientBuildPath));
 
     // Fallback SPA para rutas del frontend
-    app.get("*", (req, res, next) => {
+    app.get("/{*splat}", (req, res, next) => {
         if (req.path.startsWith("/api") || req.path === "/login" || req.path === "/me") {
             return next();
         }

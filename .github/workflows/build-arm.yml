@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE: ghcr.io/darkroft123/astc-better-auth
+  IMAGE: ghcr.io/joyit-yprogram/astc-cn-better-auth
 
 jobs:
   build:
@@ -22,7 +22,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: darkroft123
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
@@ -34,3 +34,15 @@ jobs:
           tags: |
             ${{ env.IMAGE }}:latest
             ${{ env.IMAGE }}:${{ github.sha }}
+
+      - name: Export image for offline load
+        run: |
+          docker pull ${{ env.IMAGE }}:${{ github.sha }}
+          docker save ${{ env.IMAGE }}:${{ github.sha }} | gzip > better-auth-arm64.tar.gz
+
+      - name: Upload ARM64 image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: better-auth-arm64
+          path: better-auth-arm64.tar.gz
+          retention-days: 7
