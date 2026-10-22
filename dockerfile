@@ -43,8 +43,6 @@ RUN npx prisma generate
 
 COPY --from=server-builder /app/dist ./dist
 COPY --from=client-builder /app/client/dist ./public
-COPY private.pem ./private.pem
-COPY public.pem ./public.pem
 
 ENV NODE_ENV=production
 ENV PORT=3010
