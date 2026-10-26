@@ -27,7 +27,7 @@ export function authMiddleware(
 
         (req as any).user = decoded;
 
-        console.log("DECODED TOKEN:", decoded);
+        // Token decoded successfully (redacted for security)
 
         next();
 

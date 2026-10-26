@@ -18,8 +18,30 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
+const ALLOWED_ORIGINS = [
+    "https://astc.joyit.io",
+    "https://project.astc.joyit.io",
+    "https://backoffice.astc.joyit.io",
+    "https://assistance.astc.joyit.io",
+    "https://auth-api.astc.joyit.io",
+    "https://astc-api.joyit.io",
+    "https://astc-project.joyit.io",
+    "https://astc-backoffice.joyit.io",
+    "https://attendance.joyit.io",
+];
+
 app.use(cors({
-    origin: true,
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        if (
+            ALLOWED_ORIGINS.includes(origin) ||
+            origin.endsWith(".joyit.io") ||
+            process.env.NODE_ENV !== "production"
+        ) {
+            return callback(null, true);
+        }
+        return callback(new Error("CORS policy violation: origin not allowed"));
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"]
