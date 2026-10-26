@@ -61,6 +61,17 @@ const schema = buildSchema(`
     password: String
   }
 
+  input EditUserInputInput {
+    username: String
+    email: String
+    firstName: String
+    lastName: String
+    phone: String
+    roleId: String
+    avatarUrl: String
+    password: String
+  }
+
   type Query {
     ping: String
     listRoles: [RoleOutput]
@@ -70,7 +81,7 @@ const schema = buildSchema(`
 
   type Mutation {
     createUser(input: CreateUserInput): CreateUserResponse
-    editUser(id: String, input: EditUserInput): UserOutput
+    editUser(id: String, input: EditUserInputInput): UserOutput
     deleteUser(id: String): Boolean
   }
 `);
