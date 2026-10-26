@@ -63,15 +63,15 @@ const schema = buildSchema(`
 
   type Query {
     ping: String
-    listRoles: [RoleOutput!]!
-    listUsers: [UserOutput!]!
-    getUser(id: String!): UserOutput
+    listRoles: [RoleOutput]
+    listUsers: [UserOutput]
+    getUser(id: String): UserOutput
   }
 
   type Mutation {
-    createUser(input: CreateUserInput!): CreateUserResponse!
-    editUser(id: String!, input: EditUserInput!): UserOutput
-    deleteUser(id: String!): Boolean!
+    createUser(input: CreateUserInput): CreateUserResponse
+    editUser(id: String, input: EditUserInput): UserOutput
+    deleteUser(id: String): Boolean
   }
 `);
 
