@@ -20,28 +20,38 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 const ALLOWED_ORIGINS = [
+    "https://astc-joyit.io",
     "https://astc.joyit.io",
+    "https://attendance-joyit.io",
+    "https://attendance.joyit.io",
+    "https://astc-project.joyit.io",
+    "https://astc-backoffice.joyit.io",
+    "https://astc-api.joyit.io",
+    "https://astc-auth.joyit.io",
+    "https://auth-api.astc.joyit.io",
     "https://project.astc.joyit.io",
     "https://backoffice.astc.joyit.io",
     "https://assistance.astc.joyit.io",
-    "https://auth-api.astc.joyit.io",
-    "https://astc-api.joyit.io",
-    "https://astc-project.joyit.io",
-    "https://astc-backoffice.joyit.io",
-    "https://attendance.joyit.io",
 ];
 
 app.use(cors({
     origin: (origin, callback) => {
         if (!origin) return callback(null, true);
-        if (
-            ALLOWED_ORIGINS.includes(origin) ||
-            origin.endsWith(".joyit.io") ||
-            process.env.NODE_ENV !== "production"
-        ) {
-            return callback(null, true);
+        try {
+            const parsed = new URL(origin);
+            if (
+                ALLOWED_ORIGINS.includes(origin) ||
+                parsed.hostname.endsWith("joyit.io") ||
+                parsed.hostname === "localhost" ||
+                parsed.hostname === "127.0.0.1" ||
+                process.env.NODE_ENV !== "production"
+            ) {
+                return callback(null, true);
+            }
+        } catch {
+            // invalid URL
         }
-        return callback(new Error("CORS policy violation: origin not allowed"));
+        return callback(null, false);
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
