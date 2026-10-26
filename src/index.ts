@@ -184,8 +184,11 @@ if (clientBuildPath) {
     app.use(express.static(clientBuildPath));
 
     // Fallback SPA para rutas del frontend
-    app.get("/{*splat}", (req, res, next) => {
-        if (req.path.startsWith("/api") || req.path === "/login" || req.path === "/me" || req.path === "/graphql") {
+    app.use((req, res, next) => {
+        if (req.method !== "GET") {
+            return next();
+        }
+        if (req.path.startsWith("/api") || req.path === "/me" || req.path === "/graphql") {
             return next();
         }
         res.sendFile(path.join(clientBuildPath, "index.html"));
