@@ -3,11 +3,13 @@ import { loginApi } from "@/features/auth/infrastructure/auth.api";
 import { useAuth } from "@/context/AuthContext";
 import { jwtDecode } from "jwt-decode";
 import { ROLE_ROUTES } from "@/utils/roleRoutes";
+import { setCookie } from "@/utils/theme";
 
 type JwtPayload = {
   role?: string;
   exp?: number;
 };
+
 export function useLogin() {
   const { setToken } = useAuth();
 
@@ -48,13 +50,17 @@ export function useLogin() {
       const totalLoginTime = redirectStartTime - startTime;
       console.log(`[AUTH PERF] Total login time (before redirect) = ${totalLoginTime} ms`);
 
+      // Propagar tema activo (light o dark) a los demás subdominios
+      const currentTheme = localStorage.getItem("theme") || "light";
+      setCookie("theme", currentTheme);
+
       // IMPORTANTE: set loading OFF ANTES de salir
       setState({ loading: false, error: null });
 
       // pequeño delay para que React pinte UI antes del redirect
       setTimeout(() => {
         window.location.assign(
-          `${redirectUrl}/?token=${encodeURIComponent(token)}&loginStart=${startTime}&redirectStart=${redirectStartTime}`
+          `${redirectUrl}/?token=${encodeURIComponent(token)}&theme=${encodeURIComponent(currentTheme)}&loginStart=${startTime}&redirectStart=${redirectStartTime}`
         );
       }, 0);
 
