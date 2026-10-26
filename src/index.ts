@@ -12,6 +12,7 @@ import { fileURLToPath } from "node:url";
 
 import { db } from "./db.js";
 import { authMiddleware } from "./middleware/authMiddleware.js";
+import { graphqlRouter } from "./routes/graphql.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -151,6 +152,11 @@ app.get(["/me", "/api/auth/me"], authMiddleware, (req, res) => {
 });
 
 /* =========================
+   GRAPHQL (Backoffice & User Management)
+========================= */
+app.use(["/graphql", "/api/auth/graphql"], graphqlRouter);
+
+/* =========================
    UI VISUAL (Frontend Auth Integrado)
 ========================= */
 const candidates = [
@@ -169,7 +175,7 @@ if (clientBuildPath) {
 
     // Fallback SPA para rutas del frontend
     app.get("/{*splat}", (req, res, next) => {
-        if (req.path.startsWith("/api") || req.path === "/login" || req.path === "/me") {
+        if (req.path.startsWith("/api") || req.path === "/login" || req.path === "/me" || req.path === "/graphql") {
             return next();
         }
         res.sendFile(path.join(clientBuildPath, "index.html"));
@@ -181,7 +187,7 @@ if (clientBuildPath) {
 // Warm up the database connection pool on startup to eliminate cold starts
 db.$connect()
     .then(() => console.log("⚡ [AUTH] Prisma Client successfully connected to Database"))
-    .catch((err) => console.error("❌ [AUTH] Prisma connection error during startup warmup:", err));
+    .catch((err: any) => console.error("❌ [AUTH] Prisma connection error during startup warmup:", err));
 
 const PORT = process.env.PORT || 3010;
 
