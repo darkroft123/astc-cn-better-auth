@@ -20,9 +20,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 const ALLOWED_ORIGINS = [
-    "https://astc-joyit.io",
     "https://astc.joyit.io",
-    "https://attendance-joyit.io",
     "https://attendance.joyit.io",
     "https://astc-project.joyit.io",
     "https://astc-backoffice.joyit.io",
