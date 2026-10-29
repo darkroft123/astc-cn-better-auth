@@ -101,12 +101,12 @@ app.post(["/login", "/api/auth/login"], async (req, res) => {
         }
 
 let avatarUrl = user.avatar_url || "";
-        const s3Public = process.env.S3_PUBLIC_ENDPOINT || "https://astc-minio.joyit.io";
+        const s3External = process.env.S3_EXTERNAL_URL || process.env.S3_PUBLIC_ENDPOINT || "https://astc-minio.joyit.io";
         if (avatarUrl.includes("http://minio:9000") || avatarUrl.includes("astc.local") || avatarUrl.includes("minio-s3.astc.joyit.io")) {
-            avatarUrl = avatarUrl.replace("http://minio:9000", s3Public)
-                                 .replace("https://minio-s3.astc.local", s3Public)
-                                 .replace("http://minio-s3.astc.local", s3Public)
-                                 .replace("https://minio-s3.astc.joyit.io", s3Public);
+            avatarUrl = avatarUrl.replace("http://minio:9000", s3External)
+                                 .replace("https://minio-s3.astc.local", s3External)
+                                 .replace("http://minio-s3.astc.local", s3External)
+                                 .replace("https://minio-s3.astc.joyit.io", s3External);
         }
 
         const tJwtStart = Date.now();
