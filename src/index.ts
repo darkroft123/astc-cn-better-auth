@@ -28,6 +28,8 @@ const ALLOWED_ORIGINS = [
     "https://astc-backoffice.joyit.io",
     "https://astc-api.joyit.io",
     "https://astc-auth.joyit.io",
+    "https://astc-minio.joyit.io",
+    "https://minio-s3.astc.joyit.io",
     "https://auth-api.astc.joyit.io",
     "https://project.astc.joyit.io",
     "https://backoffice.astc.joyit.io",
@@ -99,9 +101,12 @@ app.post(["/login", "/api/auth/login"], async (req, res) => {
         }
 
 let avatarUrl = user.avatar_url || "";
-        const s3Public = process.env.S3_PUBLIC_ENDPOINT || "https://minio-s3.astc.joyit.io";
-        if (avatarUrl.includes("http://minio:9000") || avatarUrl.includes("astc.local")) {
-            avatarUrl = avatarUrl.replace("http://minio:9000", s3Public).replace("https://minio-s3.astc.local", s3Public).replace("http://minio-s3.astc.local", s3Public);
+        const s3Public = process.env.S3_PUBLIC_ENDPOINT || "https://astc-minio.joyit.io";
+        if (avatarUrl.includes("http://minio:9000") || avatarUrl.includes("astc.local") || avatarUrl.includes("minio-s3.astc.joyit.io")) {
+            avatarUrl = avatarUrl.replace("http://minio:9000", s3Public)
+                                 .replace("https://minio-s3.astc.local", s3Public)
+                                 .replace("http://minio-s3.astc.local", s3Public)
+                                 .replace("https://minio-s3.astc.joyit.io", s3Public);
         }
 
         const tJwtStart = Date.now();
