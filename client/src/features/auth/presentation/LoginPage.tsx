@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useLogin } from "@/features/auth/application/useLogin";
+import { getInitialTheme, applyTheme } from "@/utils/theme";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
@@ -20,11 +21,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // El login siempre es light por defecto
+  // Sincronizar tema según parámetro URL (?theme=dark|light) o cookie/almacenamiento
   useEffect(() => {
-    if (typeof document !== "undefined") {
-      document.documentElement.classList.remove("dark");
-    }
+    const initial = getInitialTheme();
+    applyTheme(initial);
   }, []);
 
   async function handleSubmit(e: FormEvent) {
@@ -36,16 +36,16 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden bg-[#f5f6fa] text-[#11131c]">
+    <main className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden transition-colors duration-200 bg-[#f5f6fa] text-[#11131c] dark:bg-[#080a12] dark:text-[#eef0f6]">
       {/* Fondos sutiles del design system */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute w-[500px] h-[500px] bg-gradient-to-br from-[#5b8cff]/10 to-[#a855f7]/10 blur-[120px] rounded-full top-[-100px] left-[-100px] animate-pulse" />
-        <div className="absolute w-[500px] h-[500px] bg-gradient-to-br from-[#a855f7]/10 to-[#0e9fc0]/10 blur-[120px] rounded-full bottom-[-100px] right-[-100px] animate-pulse" />
+        <div className="absolute w-[500px] h-[500px] bg-gradient-to-br from-[#5b8cff]/10 to-[#a855f7]/10 dark:from-[#5b8cff]/15 dark:to-[#a855f7]/15 blur-[120px] rounded-full top-[-100px] left-[-100px] animate-pulse" />
+        <div className="absolute w-[500px] h-[500px] bg-gradient-to-br from-[#a855f7]/10 to-[#0e9fc0]/10 dark:from-[#a855f7]/15 dark:to-[#22c3e6]/15 blur-[120px] rounded-full bottom-[-100px] right-[-100px] animate-pulse" />
       </div>
 
       {/* LOGIN CARD */}
       <div className="relative w-full max-w-md z-10">
-        <Card className="border border-slate-200/80 bg-white shadow-xl shadow-black/5 rounded-2xl">
+        <Card className="border border-slate-200/80 dark:border-white/[0.08] bg-white dark:bg-[#12141f] shadow-xl shadow-black/5 dark:shadow-2xl rounded-2xl transition-colors duration-200">
           {/* HEADER */}
           <CardHeader className="text-center pt-8 pb-4 space-y-3">
             <div className="mx-auto w-14 h-14 rounded-2xl flex items-center justify-center shadow-md shadow-purple-500/15 overflow-hidden transition-transform duration-200 hover:scale-105">
@@ -57,10 +57,10 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-1">
-              <CardTitle className="text-2xl font-bold tracking-tight text-slate-900">
+              <CardTitle className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
                 Asistencia Laboral
               </CardTitle>
-              <CardDescription className="text-sm text-slate-500">
+              <CardDescription className="text-sm text-slate-500 dark:text-slate-400">
                 Inicia sesión para continuar en la plataforma
               </CardDescription>
             </div>
@@ -72,7 +72,7 @@ export default function LoginPage() {
               <div className="space-y-1.5">
                 <Label
                   htmlFor="email"
-                  className="text-xs font-semibold text-slate-700 ml-0.5"
+                  className="text-xs font-semibold text-slate-700 dark:text-slate-200 ml-0.5"
                 >
                   Correo Electrónico
                 </Label>
@@ -84,14 +84,14 @@ export default function LoginPage() {
                   placeholder="correo@empresa.com"
                   required
                   autoComplete="email"
-                  className="h-11 rounded-xl bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary [&:-webkit-autofill]:shadow-[0_0_0_1000px_white_inset] [&:-webkit-autofill]:-webkit-text-fill-color-[#11131c]"
+                  className="h-11 rounded-xl bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 dark:bg-[#181c2e] dark:border-white/10 dark:text-white dark:placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary"
                 />
               </div>
 
               <div className="space-y-1.5">
                 <Label
                   htmlFor="password"
-                  className="text-xs font-semibold text-slate-700 ml-0.5"
+                  className="text-xs font-semibold text-slate-700 dark:text-slate-200 ml-0.5"
                 >
                   Contraseña
                 </Label>
@@ -104,12 +104,12 @@ export default function LoginPage() {
                     placeholder="••••••••"
                     required
                     autoComplete="current-password"
-                    className="h-11 rounded-xl bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 pr-10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary [&:-webkit-autofill]:shadow-[0_0_0_1000px_white_inset] [&:-webkit-autofill]:-webkit-text-fill-color-[#11131c]"
+                    className="h-11 rounded-xl bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 dark:bg-[#181c2e] dark:border-white/10 dark:text-white dark:placeholder:text-slate-500 pr-10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 transition-colors cursor-pointer"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 p-1 transition-colors cursor-pointer"
                     aria-label={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
                   >
                     {showPassword ? (
@@ -145,7 +145,7 @@ export default function LoginPage() {
           </CardContent>
 
           {/* FOOTER */}
-          <CardFooter className="justify-center pb-6 pt-0 text-xs text-slate-500 font-medium">
+          <CardFooter className="justify-center pb-6 pt-0 text-xs text-slate-500 dark:text-slate-400 font-medium">
             Sistema de control de asistencia
           </CardFooter>
         </Card>

@@ -18,7 +18,30 @@ export function setCookie(name: string, value: string, days = 365) {
 }
 
 export function getInitialTheme(): Theme {
-  // El login siempre es light por defecto
+  if (typeof window === "undefined") return "light";
+
+  // 1. Prioridad: Parámetro en la URL (?theme=dark|light) pasado al cerrar sesión
+  const params = new URLSearchParams(window.location.search);
+  const paramTheme = params.get("theme");
+  if (paramTheme === "light" || paramTheme === "dark") {
+    localStorage.setItem("theme", paramTheme);
+    setCookie("theme", paramTheme);
+    return paramTheme;
+  }
+
+  // 2. Cookie compartida entre subdominios .joyit.io
+  const cookieTheme = getCookie("theme");
+  if (cookieTheme === "light" || cookieTheme === "dark") {
+    return cookieTheme;
+  }
+
+  // 3. localStorage local
+  const localTheme = localStorage.getItem("theme");
+  if (localTheme === "light" || localTheme === "dark") {
+    return localTheme;
+  }
+
+  // Por defecto LIGHT (primera visita)
   return "light";
 }
 
