@@ -9,6 +9,7 @@ import bcrypt from "bcryptjs";
 import fs from "fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { rateLimit } from "express-rate-limit";
 
 import { db } from "./db.js";
 import { authMiddleware } from "./middleware/authMiddleware.js";
@@ -18,6 +19,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+app.set("trust proxy", 1);
 
 const ALLOWED_ORIGINS = [
     "https://astc.joyit.io",
@@ -64,9 +66,23 @@ const privateKeyPath = fs.existsSync("private.pem") ? "private.pem" : path.join(
 const privateKey = fs.readFileSync(privateKeyPath);
 
 /* =========================
+   RATE LIMITER PARA LOGIN
+========================= */
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    limit: 5, // Máximo 5 intentos por IP cada 15 minutos
+    standardHeaders: "draft-7",
+    legacyHeaders: false,
+    statusCode: 429,
+    message: {
+        message: "Demasiados intentos de inicio de sesión desde esta IP. Por favor, inténtalo de nuevo en 15 minutos."
+    }
+});
+
+/* =========================
    LOGIN (Directo o bajo /api/auth)
 ========================= */
-app.post(["/login", "/api/auth/login"], async (req, res) => {
+app.post(["/login", "/api/auth/login"], loginLimiter, async (req, res) => {
     const tStart = Date.now();
     try {
 
