@@ -70,12 +70,13 @@ const privateKey = fs.readFileSync(privateKeyPath);
 ========================= */
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
-    limit: 5, // Máximo 5 intentos por IP cada 15 minutos
+    limit: 5, // Máximo 5 intentos fallidos
+    skipSuccessfulRequests: true,
     standardHeaders: "draft-7",
     legacyHeaders: false,
     statusCode: 429,
     message: {
-        message: "Demasiados intentos de inicio de sesión desde esta IP. Por favor, inténtalo de nuevo en 15 minutos."
+        message: "Demasiados intentos de inicio de sesión. Por favor, inténtalo de nuevo más tarde."
     }
 });
 
