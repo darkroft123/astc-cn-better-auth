@@ -100,7 +100,7 @@ app.post(["/login", "/api/auth/login"], loginLimiter, async (req, res) => {
         console.log(`[AUTH PERF] Database user lookup took ${Date.now() - tDbStart} ms`);
 
         if (!user) {
-            return res.status(401).json({ message: "Invalid credentials" });
+            return res.status(401).json({ message: "contraseña incorrecta" });
         }
 
         const tPasswordStart = Date.now();
@@ -112,7 +112,7 @@ app.post(["/login", "/api/auth/login"], loginLimiter, async (req, res) => {
         console.log(`[AUTH PERF] Password validation duration = ${tPasswordDuration} ms`);
 
         if (!valid) {
-            return res.status(401).json({ message: "Invalid credentials" });
+            return res.status(401).json({ message: "contraseña incorrecta" });
         }
 
 let avatarUrl = user.avatar_url || "";
