@@ -90,7 +90,23 @@ app.post(["/login", "/api/auth/login"], loginLimiter, async (req, res) => {
         console.log("============== LOGIN REQUEST ==============");
         console.log("[AUTH PERF] Login request started");
 
-        const { email, password } = req.body;
+        const { email, password } = req.body || {};
+
+        if (!email || typeof email !== "string" || !email.trim()) {
+            return res.status(400).json({ message: "El correo electrónico es obligatorio." });
+        }
+        if (email.length > 255) {
+            return res.status(400).json({ message: "El correo electrónico no puede exceder los 255 caracteres." });
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+            return res.status(400).json({ message: "El formato del correo electrónico no es válido." });
+        }
+        if (!password || typeof password !== "string") {
+            return res.status(400).json({ message: "La contraseña es obligatoria." });
+        }
+        if (password.length > 128) {
+            return res.status(400).json({ message: "La contraseña no puede exceder los 128 caracteres." });
+        }
 
         const tDbStart = Date.now();
         const user = await db.user.findUnique({
