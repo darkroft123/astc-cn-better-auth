@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'client/**'
+      - 'prisma/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - 'dockerfile'
+      - '.github/pipeline.yml'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'client/**'
+      - 'prisma/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - 'dockerfile'
+      - '.github/pipeline.yml'
+      - '.github/workflows/ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: joyitoficial/devops-actions/.github/workflows/pipeline.yml@main
+    with:
+      pipeline-file: .github/pipeline.yml
+      config-runs-on: '["self-hosted","Linux"]'
+    secrets: inherit

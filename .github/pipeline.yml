@@ -1,0 +1,11 @@
+workflow: node
+runs-on: [self-hosted, Linux]
+platform: linux/arm64
+push-image: true
+project-key: astc-cn-better-auth
+dockerfile: dockerfile
+skip-coverage: true
+lint-no-fail: true
+sign-image: true
+security-scans: secret-scan,sca,sast,image-scan
+security-fail-on: none
