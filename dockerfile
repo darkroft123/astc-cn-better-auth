@@ -47,5 +47,6 @@ COPY --from=client-builder /app/client/dist ./public
 ENV NODE_ENV=production
 ENV PORT=3010
 EXPOSE 3010
+USER node
 
 CMD ["node", "dist/index.js"]
