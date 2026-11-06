@@ -1,3 +1,4 @@
+const DUMMY_BCRYPT_HASH = "$2a$10$wN9iL6Ua1sB.k0Lq1i8Z2.q7H8P8H8P8H8P8H8P8H8P8H8P8H8P8H";
 import dns from "node:dns";
 dns.setDefaultResultOrder("ipv4first");
 import "dotenv/config";
@@ -43,7 +44,7 @@ app.use(cors({
             const parsed = new URL(origin);
             if (
                 ALLOWED_ORIGINS.includes(origin) ||
-                parsed.hostname.endsWith("joyit.io") ||
+                parsed.hostname === "joyit.io" || parsed.hostname.endsWith(".joyit.io") ||
                 parsed.hostname === "localhost" ||
                 parsed.hostname === "127.0.0.1" ||
                 process.env.NODE_ENV !== "production"
@@ -115,19 +116,15 @@ app.post(["/login", "/api/auth/login"], loginLimiter, async (req, res) => {
         });
         console.log(`[AUTH PERF] Database user lookup took ${Date.now() - tDbStart} ms`);
 
-        if (!user) {
-            return res.status(401).json({ message: "contraseña incorrecta" });
-        }
-
         const tPasswordStart = Date.now();
         const valid = await bcrypt.compare(
             password,
-            user.password_hash
+            user ? user.password_hash : DUMMY_BCRYPT_HASH
         );
         const tPasswordDuration = Date.now() - tPasswordStart;
         console.log(`[AUTH PERF] Password validation duration = ${tPasswordDuration} ms`);
 
-        if (!valid) {
+        if (!user || !valid) {
             return res.status(401).json({ message: "contraseña incorrecta" });
         }
 
